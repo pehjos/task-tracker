@@ -1,12 +1,12 @@
 
-function App() {
+import React from "react";
+function App(): React.JSX.Element {
 
-console.log('hello');
   return (
     <>
      <h3 className="text-3xl font-bold text-red-500 underline">hello</h3>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
