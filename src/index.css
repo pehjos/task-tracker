@@ -1,1 +1,37 @@
 @import "tailwindcss";
+
+
+@layer base {
+    gradientTitle {
+      @apply text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent;
+    }
+  }
+  
+  html {
+    scroll-behavior: smooth;
+    user-select: none;
+  }
+  
+  body {
+    margin: 0;
+    padding: 0;
+    min-width: 100%;
+    min-height: 100%;
+  }
+  
+  /* Hide scrollbar for Firefox */
+  .hideScrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  
+  /* Hide scrollbar for Chrome, Safari, and Edge */
+  .hideScrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Prevent content from being pushed by the scrollbar (for some browsers) */
+  .hideScrollbar {
+    overflow: -moz-scrollbars-none;
+    -ms-overflow-style: none;
+  }
