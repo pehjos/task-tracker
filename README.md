@@ -1,14 +1,14 @@
-Here's your **README.md** file for your **My Task Tracker** project, covering setup instructions, code quality, Git workflow, and CI/CD pipeline. Let me know if you need any modifications! 🚀
+Here's your **README.md** file for your **My  Tracker** project, covering setup instructions, code quality, Git workflow, and CI/CD pipeline.
 
 ---
 
-### 📌 **My Task Tracker**  
+### 📌 **My Tracker**  
 _A lightweight task management application with filtering, search, and local storage persistence._
 
 ![Task Tracker](src/assets/list.PNG)  
 
 ## 🚀 **Project Overview**  
-**My Task Tracker** is a minimalistic task tracker built with **React, TypeScript, and the Context API**. It allows users to add, edit, and delete tasks, filter by priority, and persist data using **localStorage**.  
+**My  Tracker** is a minimalistic task tracker built with **React, TypeScript, and the Context API**. It allows users to add, edit, and delete tasks, filter by priority, and persist data using **localStorage**.  
 
 ### 🎯 **Core Features**  
 ✅ **Task Management:** Create, update, and delete tasks  
@@ -25,8 +25,8 @@ _A lightweight task management application with filtering, search, and local sto
 
 ### **1️⃣ Clone the Repository**  
 ```sh
-git clone https://github.com/your-username/my-task-tracker.git
-cd my-task-tracker
+git clone https://github.com/pehjos/task-tracker.git
+cd task-tracker
 ```
 
 ### **2️⃣ Install Dependencies**  
@@ -94,17 +94,20 @@ This project follows strict **ESLint** rules with **TypeScript support**, enforc
 ### ✅ **Code Rules & Enforced Standards**
 ```json
 "rules": {
-  "semi": ["error", "always"],
-  "quotes": ["error", "double"],
-  "react/react-in-jsx-scope": "off",
-  "react/prop-types": "off",
-  "@typescript-eslint/no-explicit-any": "error",
-  "@typescript-eslint/explicit-module-boundary-types": "error", 
-  "@typescript-eslint/explicit-function-return-type": "error",
-  "no-console": ["error", { "allow": ["warn", "error"] }],
-  "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
+  "semi": ["error", "always"], // Enforces the use of semicolons at the end of statements. Missing semicolons will cause an error.
+  "quotes": ["error", "double"], // Requires the use of double quotes for strings. Using single quotes will trigger an error.
+  "react/react-in-jsx-scope": "off", // Disables the rule that requires React to be in scope when using JSX. This is useful in newer React versions where it's not needed.
+  "react/prop-types": "off", // Disables enforcement of prop-types validation, which is unnecessary when using TypeScript.
+  "@typescript-eslint/no-explicit-any": "error", // Disallows the use of the `any` type in TypeScript. This helps maintain strong typing.
+  "@typescript-eslint/explicit-module-boundary-types": "error", // Requires functions exported from modules to have explicitly defined return types.
+  "@typescript-eslint/explicit-function-return-type": "error", // Requires all functions to explicitly specify their return type to improve code clarity.
+  "no-console": ["error", { "allow": ["warn", "error"] }], // Prevents `console.log` usage but allows `console.warn` and `console.error`.
+  "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }], 
+  // Prevents unused variables from being declared. However, variables prefixed with `_` are ignored.
   "@typescript-eslint/no-unused-expressions": ["error", { "allowShortCircuit": true, "allowTernary": true }]
+  // Disallows unused expressions (like `a && b` without assignment), but allows short-circuiting and ternary expressions.
 }
+
 ```
 ### ✅ **Pre-commit Hooks with Husky**
 - Runs **ESLint & Tests** before commits  
@@ -118,9 +121,7 @@ We follow a **Git best practice workflow** to ensure clean and manageable code.
 ### 🔄 **Branching Strategy**
 - `main` → Stable production-ready branch  
 - `develop` → Ongoing development work  
-- `feature/*` → New features (merged into `develop`)  
-- `bugfix/*` → Fixes for reported issues  
-- `hotfix/*` → Critical fixes for `main`  
+- `feature/*` → New features (merged into `develop`)   
 
 ### 📜 **Git Commit Guidelines**
 ✅ **Small, Focused Commits** – Each commit should address **one** change  
@@ -183,7 +184,7 @@ jobs:
 
 ---
 
-## 🎨 **UI & Screenshots**
+## 🎨 **UI**
 ### 🌟 **Home Page**
 <img src="src/assets/filter.PNG" alt="Task Tracker Home" width="600" />
 
@@ -196,44 +197,16 @@ jobs:
 - **React + TypeScript** for **type safety & maintainability**
 - **Context API** for **global state management**
 - **useState & useEffect** for **state handling**
-- **useMemo** for **performance optimizations**
 - **Vitest** for **unit testing**
 - **Debounce in Search Input** for **better UX**
 - **Husky & ESLint** for **code quality enforcement**
 
----
-
-## 📌 **Future Improvements**
-- ✅ **Drag & Drop for Task Reordering**
-- ✅ **Dark Mode Support**
-- ✅ **User Authentication (JWT)**
-- ✅ **API Integration for Tasks (Firebase/Node.js)**
-
----
-
-## 💬 **Contributing**
-1️⃣ **Fork the repository**  
-2️⃣ **Create a new branch** (`feature/task-improvement`)  
-3️⃣ **Commit changes** (`git commit -m "feat: improved task sorting"`)  
-4️⃣ **Push changes** (`git push origin feature/task-improvement`)  
-5️⃣ **Create a Pull Request**  
-
----
 
 ## 📜 **License**
 This project is licensed under the **MIT License**.  
 
----
-
-## 📞 **Contact & Support**
-For any issues, feel free to **open an issue** or **reach out via email**.  
-🚀 _Happy Coding!_ 🎉  
-
----
 
 ### **🔗 GitHub Repository**  
-👉 [https://github.com/your-username/my-task-tracker](https://github.com/your-username/my-task-tracker)  
+👉 [https://github.com/pehjos/task-tracker](https://github.com/pehjos/task-tracker)  
 
 ---
-
-This README **fully documents** your project, covering **setup, CI/CD, Git workflow, and coding standards**. 🎯 🚀 Let me know if you need any adjustments! 🚀
