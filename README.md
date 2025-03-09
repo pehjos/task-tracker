@@ -5,7 +5,7 @@ Here's your **README.md** file for your **My Task Tracker** project, covering se
 ### 📌 **My Task Tracker**  
 _A lightweight task management application with filtering, search, and local storage persistence._
 
-![Task Tracker](./screenshots/task-tracker-banner.png)  
+![Task Tracker](./assets/list.png)  
 
 ## 🚀 **Project Overview**  
 **My Task Tracker** is a minimalistic task tracker built with **React, TypeScript, and the Context API**. It allows users to add, edit, and delete tasks, filter by priority, and persist data using **localStorage**.  
@@ -185,10 +185,10 @@ jobs:
 
 ## 🎨 **UI & Screenshots**
 ### 🌟 **Home Page**
-<img src="./screenshots/task-tracker-home.png" alt="Task Tracker Home" width="600" />
+<img src="./assets/search.png" alt="Task Tracker Home" width="600" />
 
 ### 📝 **Task List & Filters**
-<img src="./screenshots/task-list.png" alt="Task List" width="600" />
+<img src="./assets/list.png" alt="Task List" width="600" />
 
 ---
 
