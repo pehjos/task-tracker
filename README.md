@@ -116,7 +116,7 @@ This project follows strict **ESLint** rules with **TypeScript support**, enforc
 ---
 
 ## 🏆 **Git Workflow & Branching Strategy**
-We follow a **Git best practice workflow** to ensure clean and manageable code.
+**Git best practice workflow** to ensure clean and manageable code.
 
 ### 🔄 **Branching Strategy**
 - `main` → Stable production-ready branch  
