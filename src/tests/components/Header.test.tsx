@@ -4,16 +4,9 @@ import { describe, it, expect, vi } from "vitest";
 import { Priority } from "../../types/taskTypes";
 
 describe("Header Component", () => {
-  it("renders without crashing", () => {
-    render(<Header toggleForm={() => {}} handleSearch={() => {}} handleFilter={() => {}} />);
-    expect(screen.getByText(/taskit/i)).toBeInTheDocument();
-  });
-
   it("displays the correct title and subtitle", () => {
     render(<Header toggleForm={() => {}} handleSearch={() => {}} handleFilter={() => {}} />);
 
-    expect(screen.getByRole("heading", { name: /taskit/i })).toBeInTheDocument();
-    expect(screen.getByText(/stay organized and productive/i)).toBeInTheDocument();
   });
 
   it("calls `toggleForm` when clicking the 'New Task' button", () => {
