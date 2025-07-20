@@ -2,187 +2,196 @@ pipeline {
     agent any
     
     environment {
-        // Define environment variables
-        NODE_VERSION = '18'  // Adjust based on your project
-        PYTHON_VERSION = '3.9'  // Adjust if using Python
+        NODE_VERSION = '20' // Updated for Vite + React 19
+        DOCKER_IMAGE = 'my-app' // Matches your package.json name
+        DOCKER_TAG = "${BUILD_NUMBER}"
+    }
+    
+    tools {
+        nodejs "${NODE_VERSION}"
     }
     
     stages {
-        stage('Checkout') {
+        stage('1. Checkout & Setup') {
             steps {
+                echo '🚀 Stage 1: Checking out code and setting up environment'
+                
                 // Checkout code from GitHub
                 checkout scm
-                echo "Code checked out successfully"
+                
+                // Display Node and npm versions
+                sh 'node --version'
+                sh 'npm --version'
+                
+                // Clean any previous builds
+                sh 'rm -rf node_modules dist coverage'
+                
+                // Install dependencies (npm ci for exact package-lock.json versions)
+                sh 'npm ci'
+                
+                echo '✅ Dependencies installed successfully'
             }
         }
         
-        stage('Setup Environment') {
-            steps {
-                script {
-                    // Setup based on your project type
-                    if (fileExists('package.json')) {
-                        echo "Node.js project detected"
-                        bat 'npm --version'
-                        bat 'node --version'
-                    }
-                    if (fileExists('requirements.txt')) {
-                        echo "Python project detected"
-                        bat 'python --version'
-                    }
-                    if (fileExists('pom.xml')) {
-                        echo "Maven project detected"
-                        bat 'mvn --version'
-                    }
-                }
-            }
-        }
-        
-        stage('Install Dependencies') {
-            steps {
-                script {
-                    // Install dependencies based on project type
-                    if (fileExists('package.json')) {
-                        bat 'npm install'
-                    }
-                    if (fileExists('requirements.txt')) {
-                        bat 'pip install -r requirements.txt'
-                    }
-                    if (fileExists('pom.xml')) {
-                        bat 'mvn clean compile'
-                    }
-                }
-            }
-        }
-        
-        stage('Code Quality Checks') {
+        stage('2. Code Quality & Testing') {
             parallel {
+                stage('TypeScript Check') {
+                    steps {
+                        echo '📝 Running TypeScript compilation check'
+                        sh 'npx tsc -b --noEmit'
+                    }
+                }
+                
                 stage('Linting') {
                     steps {
-                        script {
-                            // Run linting based on project type
-                            if (fileExists('package.json')) {
-                                bat 'npm run lint || echo "No lint script found"'
-                            }
-                            if (fileExists('.pylintrc') || fileExists('setup.cfg')) {
-                                bat 'pylint . || echo "Pylint check completed"'
-                            }
+                        echo '🔍 Running ESLint checks'
+                        sh 'npm run lint'
+                    }
+                }
+                
+                stage('Unit Tests') {
+                    steps {
+                        echo '🧪 Running tests with Vitest'
+                        sh 'npm run test -- --coverage'
+                    }
+                    post {
+                        always {
+                            // Archive test coverage reports
+                            publishHTML([
+                                allowMissing: true,
+                                alwaysLinkToLastBuild: false,
+                                keepAll: true,
+                                reportDir: 'coverage',
+                                reportFiles: 'index.html',
+                                reportName: 'Coverage Report'
+                            ])
                         }
                     }
                 }
                 
-                stage('Security Scan') {
+                stage('Security Audit') {
                     steps {
-                        script {
-                            // Security checks
-                            if (fileExists('package.json')) {
-                                bat 'npm audit || echo "Security audit completed"'
-                            }
-                        }
+                        echo '🔒 Running security audit'
+                        sh 'npm audit --audit-level=moderate || echo "Security audit completed with warnings"'
                     }
                 }
             }
         }
         
-        stage('Run Tests') {
+        stage('3. Build & Package') {
             steps {
+                echo '🏗️ Stage 3: Building the Vite React application'
+                
+                // Build the React app with Vite
+                sh 'npm run build'
+                
+                // Verify build output (Vite builds to 'dist' folder)
+                sh 'ls -la dist/'
+                
+                // Archive build artifacts
+                archiveArtifacts artifacts: 'dist/**/*', fingerprint: true
+                
+                // Optional: Create Docker image
                 script {
-                    // Run tests based on project type
-                    if (fileExists('package.json')) {
-                        bat 'npm test'
-                    }
-                    if (fileExists('pytest.ini') || fileExists('test_*.py')) {
-                        bat 'python -m pytest --junitxml=test-results.xml'
-                    }
-                    if (fileExists('pom.xml')) {
-                        bat 'mvn test'
-                    }
-                }
-            }
-            post {
-                always {
-                    // Publish test results
-                    script {
-                        if (fileExists('test-results.xml')) {
-                            publishTestResults testResultsPattern: 'test-results.xml'
-                        }
-                        if (fileExists('target/surefire-reports/*.xml')) {
-                            publishTestResults testResultsPattern: 'target/surefire-reports/*.xml'
-                        }
-                    }
-                }
-            }
-        }
-        
-        stage('Build') {
-            steps {
-                script {
-                    // Build based on project type
-                    if (fileExists('package.json')) {
-                        bat 'npm run build || echo "No build script found"'
-                    }
-                    if (fileExists('setup.py')) {
-                        bat 'python setup.py build'
-                    }
-                    if (fileExists('pom.xml')) {
-                        bat 'mvn package'
-                    }
                     if (fileExists('Dockerfile')) {
-                        bat 'docker build -t %JOB_NAME%:%BUILD_NUMBER% .'
+                        echo '🐳 Building Docker image'
+                        def image = docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
+                        docker.withRegistry('https://your-registry.com', 'docker-registry-credentials') {
+                            image.push()
+                            image.push('latest')
+                        }
                     }
                 }
+                
+                echo '✅ Build completed successfully'
             }
         }
         
-        stage('Archive Artifacts') {
-            steps {
-                script {
-                    // Archive build artifacts
-                    if (fileExists('dist/')) {
-                        archiveArtifacts artifacts: 'dist/**/*', fingerprint: true
-                    }
-                    if (fileExists('build/')) {
-                        archiveArtifacts artifacts: 'build/**/*', fingerprint: true
-                    }
-                    if (fileExists('target/')) {
-                        archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
-                    }
-                }
-            }
-        }
-        
-        stage('Deploy to Staging') {
+        stage('4. Deploy') {
             when {
-                branch 'main'  // Only deploy from main branch
+                anyOf {
+                    branch 'main'
+                    branch 'master'
+                    branch 'develop'
+                }
             }
             steps {
+                echo '🚀 Stage 4: Deploying application'
+                
                 script {
-                    // Add your deployment logic here
-                    echo "Deploying to staging environment..."
-                    // Example: bat 'scp dist/* user@staging-server:/path/to/deploy/'
-                    // Example: bat 'ssh user@staging-server "sudo systemctl restart myapp"'
+                    if (env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'master') {
+                        echo '🌟 Deploying to PRODUCTION'
+                        
+                        // Production deployment steps (Vite builds to 'dist' folder)
+                        sh '''
+                            # Example: Deploy to AWS S3 + CloudFront
+                            aws s3 sync dist/ s3://your-prod-bucket --delete
+                            aws cloudfront create-invalidation --distribution-id YOUR_DISTRIBUTION_ID --paths "/*"
+                        '''
+                        
+                        // Or deploy using rsync to server
+                        // sh 'rsync -avz --delete dist/ user@prod-server:/var/www/html/'
+                        
+                    } else if (env.BRANCH_NAME == 'develop') {
+                        echo '🧪 Deploying to STAGING'
+                        
+                        // Staging deployment steps (Vite builds to 'dist' folder)
+                        sh '''
+                            # Example: Deploy to staging environment
+                            aws s3 sync dist/ s3://your-staging-bucket --delete
+                        '''
+                        
+                        // Or deploy to staging server
+                        // sh 'rsync -avz --delete dist/ user@staging-server:/var/www/html/'
+                    }
                 }
+                
+                echo '✅ Deployment completed successfully'
             }
         }
     }
     
     post {
         always {
-            // Clean up workspace
+            echo '🧹 Cleaning up workspace'
             cleanWs()
         }
+        
         success {
-            echo "Pipeline completed successfully!"
-            // Optional: Send success notification
-            // emailext subject: "Build Success: ${env.JOB_NAME} - ${env.BUILD_NUMBER}",
-            //          body: "Build completed successfully.",
-            //          to: "team@company.com"
+            echo '🎉 Pipeline completed successfully!'
+            
+            // Send success notification
+            emailext (
+                subject: "✅ BUILD SUCCESS: ${env.JOB_NAME} - ${env.BUILD_NUMBER}",
+                body: """
+                    <h3>Build Successful! 🎉</h3>
+                    <p><strong>Job:</strong> ${env.JOB_NAME}</p>
+                    <p><strong>Build Number:</strong> ${env.BUILD_NUMBER}</p>
+                    <p><strong>Branch:</strong> ${env.BRANCH_NAME}</p>
+                    <p><strong>Build URL:</strong> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
+                """,
+                mimeType: 'text/html',
+                to: 'team@yourcompany.com'
+            )
         }
+        
         failure {
-            echo "Pipeline failed!"
-            // Optional: Send failure notification
-            // emailext subject: "Build Failed: ${env.JOB_NAME} - ${env.BUILD_NUMBER}",
-            //          body: "Build failed. Please check the console output.",
-            //          to: "team@company.com"
+            echo '❌ Pipeline failed!'
+            
+            // Send failure notification
+            emailext (
+                subject: "❌ BUILD FAILED: ${env.JOB_NAME} - ${env.BUILD_NUMBER}",
+                body: """
+                    <h3>Build Failed! ❌</h3>
+                    <p><strong>Job:</strong> ${env.JOB_NAME}</p>
+                    <p><strong>Build Number:</strong> ${env.BUILD_NUMBER}</p>
+                    <p><strong>Branch:</strong> ${env.BRANCH_NAME}</p>
+                    <p><strong>Build URL:</strong> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
+                    <p><strong>Console Output:</strong> <a href="${env.BUILD_URL}console">View Logs</a></p>
+                """,
+                mimeType: 'text/html',
+                to: 'team@yourcompany.com'
+            )
         }
     }
 }
