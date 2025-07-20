@@ -18,7 +18,7 @@ export const Header: FC<HeaderProps> = ({ toggleForm, handleSearch, handleFilter
           <div className="relative group">
             <h1 className="text-left text-2xl md:text-3xl font-extrabold tracking-tight">
               <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-[length:200%_auto] animate-gradient bg-clip-text text-transparent">
-                My Tracker
+                Docker Tracker APP
               </span>
             </h1>
             <p className="mt-1 text-sm md:text-base text-gray-600 hidden sm:block transition-opacity duration-200">
