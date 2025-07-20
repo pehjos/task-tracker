@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host",
+    "type-check": "tsc --noEmit",
     "build": "tsc -b && vite build",
     "test": "echo '🧪 Running tests with Vitest...' && vitest run",
     "lint": "echo '🚨 Please wait as we scan your code...' && eslint . --ext .js,.jsx,.ts,.tsx",
