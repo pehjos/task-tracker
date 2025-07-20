@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    tools {
+        nodejs 'NodeJS'  // Use the NodeJS installation configured in Jenkins
+    }
+
     environment {
         IMAGE_TAG = "build-${BUILD_NUMBER}"
     }
@@ -11,6 +15,9 @@ pipeline {
                 echo '🚀 Stage 1: Checking out code and setting up environment'
                 checkout scm
                 bat 'echo Node version && node -v'
+                
+                // Install Yarn globally
+                bat 'npm install -g yarn'
                 bat 'echo Yarn version && yarn -v'
 
                 // Clean install using yarn
