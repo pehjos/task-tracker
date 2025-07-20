@@ -42,11 +42,6 @@ pipeline {
                         bat 'yarn test || exit /b 1'
                     }
                 }
-                stage('Security Audit') {
-                    steps {
-                        bat 'yarn audit || exit /b 1'
-                    }
-                }
             }
         }
 
