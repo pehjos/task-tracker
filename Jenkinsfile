@@ -2,34 +2,39 @@ pipeline {
     agent any
 
     tools {
-        nodejs 'NodeJS'                  // From Jenkins Global Tools
+        nodejs 'NodeJS'               // Pre-configured NodeJS tool in Jenkins
+        sonarScanner 'SonarScanner'  // Pre-configured SonarQube scanner tool
     }
 
     environment {
         IMAGE_TAG = "build-${BUILD_NUMBER}"
-        SONAR_SCANNER_HOME = tool 'SonarScanner' // Name set in Jenkins → Global Tool Config
     }
 
     stages {
         stage('1. Checkout & Setup') {
             steps {
-                echo '🚀 Checkout and environment setup'
+                echo '🚀 Stage 1: Checking out code and setting up environment'
                 checkout scm
-                bat 'node -v'
+
+                bat 'echo Node version && node -v'
                 bat 'npm install -g yarn'
-                bat 'yarn -v'
+                bat 'echo Yarn version && yarn -v'
                 bat 'yarn install --frozen-lockfile'
             }
         }
 
-        stage('2. SonarQube Scan') {
+        stage('2. SonarQube Analysis') {
             steps {
                 echo '🔍 Running SonarQube analysis before build'
-                withCredentials([string(credentialsId: 'sonarcloud-token', variable: 'SONAR_TOKEN')]) {
-                    bat """
-                        ${env.SONAR_SCANNER_HOME}\\bin\\sonar-scanner.bat ^
+                withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
+                    bat '''
+                        sonar-scanner ^
+                        -Dsonar.projectKey=your_project_key ^
+                        -Dsonar.organization=your_org_if_needed ^
+                        -Dsonar.sources=. ^
+                        -Dsonar.host.url=http://your-sonarqube-server ^
                         -Dsonar.login=%SONAR_TOKEN%
-                    """
+                    '''
                 }
             }
         }
@@ -41,11 +46,13 @@ pipeline {
                         bat 'yarn type-check || exit /b 1'
                     }
                 }
+
                 stage('Linting') {
                     steps {
                         bat 'yarn lint || exit /b 1'
                     }
                 }
+
                 stage('Unit Tests') {
                     steps {
                         bat 'yarn test || exit /b 1'
@@ -56,7 +63,7 @@ pipeline {
 
         stage('4. Build') {
             steps {
-                echo '🏗️ Building project'
+                echo '🏗️ Building application'
                 bat 'yarn build'
             }
         }
@@ -64,11 +71,18 @@ pipeline {
 
     post {
         always {
-            echo '🧹 Cleaning up workspace'
-            cleanWs()
+            node {
+                echo '🧹 Cleaning up workspace'
+                cleanWs()
+            }
         }
+
         failure {
             echo '❌ Pipeline failed!'
+        }
+
+        success {
+            echo '✅ Pipeline succeeded!'
         }
     }
 }
