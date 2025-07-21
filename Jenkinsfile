@@ -2,30 +2,39 @@ pipeline {
     agent any
 
     tools {
-        nodejs 'NodeJS'  // Use the NodeJS installation configured in Jenkins
+        nodejs 'NodeJS'                  // From Jenkins Global Tools
     }
 
     environment {
         IMAGE_TAG = "build-${BUILD_NUMBER}"
+        SONAR_SCANNER_HOME = tool 'SonarScanner' // Name set in Jenkins → Global Tool Config
     }
 
     stages {
         stage('1. Checkout & Setup') {
             steps {
-                echo '🚀 Stage 1: Checking out code and setting up environment'
+                echo '🚀 Checkout and environment setup'
                 checkout scm
-                bat 'echo Node version && node -v'
-                
-                // Install Yarn globally
+                bat 'node -v'
                 bat 'npm install -g yarn'
-                bat 'echo Yarn version && yarn -v'
-
-                // Clean install using yarn
+                bat 'yarn -v'
                 bat 'yarn install --frozen-lockfile'
             }
         }
 
-        stage('2. Code Quality & Testing') {
+        stage('2. SonarQube Scan') {
+            steps {
+                echo '🔍 Running SonarQube analysis before build'
+                withCredentials([string(credentialsId: 'sonarcloud-token', variable: 'SONAR_TOKEN')]) {
+                    bat """
+                        ${env.SONAR_SCANNER_HOME}\\bin\\sonar-scanner.bat ^
+                        -Dsonar.login=%SONAR_TOKEN%
+                    """
+                }
+            }
+        }
+
+        stage('3. Code Quality & Testing') {
             parallel {
                 stage('TypeScript Check') {
                     steps {
@@ -45,8 +54,9 @@ pipeline {
             }
         }
 
-        stage('3. Build') {
+        stage('4. Build') {
             steps {
+                echo '🏗️ Building project'
                 bat 'yarn build'
             }
         }
